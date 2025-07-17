@@ -71,4 +71,102 @@ No **Group Policy ou no próprio Server Manager**:
 
 Após todas as configurações, reinicie o servidor de destino e tente conectar novamente.
 
+---
+
+Perfeito, Rafael. Com base na sua imagem e no fato de que o servidor é **Windows Server 2008 R2 em português**, vou adaptar as instruções exatamente para essa versão.
+
+---
+
+### ✅ **Passos para resolver o erro de licença RDP no Windows Server 2008 R2**
+
+Esse erro aparece quando o servidor **não tem um servidor de licenças RDS configurado corretamente** ou as licenças não foram ativadas. Vamos aos passos:
+
+---
+
+### **1. Verifique se o "Remote Desktop Licensing" está instalado**
+
+1. Vá no **Gerenciador do Servidor**.
+2. Clique em **Funções** (Roles).
+3. Veja se a função **"Licenciamento da Área de Trabalho Remota"** está instalada.
+
+> **Se não estiver:**
+
+* Clique em **Adicionar Funções**.
+* Selecione **Serviços de Área de Trabalho Remota**.
+* Marque **Licenciamento da Área de Trabalho Remota**.
+* Instale e reinicie o servidor.
+
+---
+
+### **2. Ativar o servidor de licenças**
+
+1. Vá em **Iniciar > Ferramentas Administrativas > Gerenciador de Licenciamento da Área de Trabalho Remota**.
+2. Clique com o botão direito no nome do servidor > **Ativar Servidor**.
+3. Siga o assistente:
+
+   * Tipo de conexão: escolha "Conexão automática (recomendada)".
+   * Insira os dados solicitados (nome da empresa, país etc).
+   * Finalize.
+
+---
+
+### **3. Instalar as licenças RDS (CALs)**
+
+Após ativar:
+
+1. No **Gerenciador de Licenciamento**, clique com o botão direito no servidor > **Instalar Licenças**.
+2. Siga o assistente e insira a chave das suas licenças (CALs).
+
+   * Escolha o tipo (Por Usuário ou Por Dispositivo), conforme o tipo adquirido.
+
+---
+
+### **4. Vincular o servidor de licenças ao servidor RDS**
+
+Isso é feito via **Editor de Diretiva de Grupo Local (gpedit.msc)**:
+
+1. Abra o menu Iniciar e digite: `gpedit.msc`
+2. Vá até:
+
+   ```
+   Configuração do Computador >
+   Modelos Administrativos >
+   Componentes do Windows >
+   Serviços da Área de Trabalho Remota >
+   Host da Sessão da Área de Trabalho Remota >
+   Licenciamento
+   ```
+3. Configure estas duas diretivas:
+
+   * **"Usar os servidores de licenças da Área de Trabalho Remota especificados"**
+
+     * Habilitado.
+     * Especifique o nome do servidor (pode usar nome NetBIOS ou FQDN).
+   * **"Modo de licenciamento da Área de Trabalho Remota"**
+
+     * Habilitado.
+     * Escolha: "Por Usuário" ou "Por Dispositivo" (conforme suas licenças).
+
+---
+
+### **5. Reinicie o servidor**
+
+Depois de todas essas configurações, reinicie o servidor para aplicar as políticas.
+
+---
+
+### ✅ **Comando rápido para forçar atualização da política:**
+
+Abra o Prompt de Comando como Administrador e execute:
+
+```bash
+gpupdate /force
+```
+
+---
+
+Se preferir, posso te ajudar com um script `.bat` ou `.reg` para configurar isso de forma mais rápida.
+
+Quer isso?
+
 
