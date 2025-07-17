@@ -1,0 +1,74 @@
+A mensagem de erro indica que **a sessão da Área de Trabalho Remota foi desconectada porque não há servidores de licenças RDS (Remote Desktop Services)** disponíveis para fornecer licenças. Esse erro é comum quando:
+
+1. **Não há um servidor de licenças configurado**.
+2. **O servidor de licenças está offline ou inacessível**.
+3. **As licenças expiraram ou não foram ativadas corretamente**.
+4. **O servidor RDS não consegue localizar o servidor de licenças configurado**.
+
+---
+
+### ✅ **Para resolver isso, siga os passos abaixo no servidor de destino:**
+
+---
+
+### 1. **Verifique se o servidor de licenças está configurado**
+
+No servidor RDS (ou no servidor que está tentando acessar via RDP):
+
+1. Abra o **Server Manager**.
+2. Vá para: `Remote Desktop Services > Overview`.
+3. Clique em **RD Licensing**.
+4. Veja se há **um servidor de licenças listado**.
+
+   * Se não houver, você precisa **adicionar um servidor de licenças**.
+
+---
+
+### 2. **Instale o papel de servidor de licenças**
+
+Se o servidor de licenças ainda não estiver instalado:
+
+1. Abra o **Server Manager**.
+2. Clique em **Add Roles and Features**.
+3. Vá até a seção **Remote Desktop Services > Remote Desktop Licensing**.
+4. Conclua a instalação e reinicie o servidor, se solicitado.
+
+---
+
+### 3. **Ative o servidor de licenças**
+
+Após instalar o serviço:
+
+1. Vá para `Ferramentas > Remote Desktop Services > Remote Desktop Licensing Manager`.
+2. Clique com o botão direito no nome do servidor e selecione **Ativar servidor**.
+3. Siga o assistente para ativação online ou por telefone.
+
+---
+
+### 4. **Instale e atribua as licenças RDS CALs**
+
+1. No **Licensing Manager**, clique com o botão direito no servidor ativado.
+2. Selecione **Instalar Licenças**.
+3. Siga o assistente e **insira as RDS CALs (Client Access Licenses)** que você possui.
+
+---
+
+### 5. **Configure o servidor RDS para usar o servidor de licenças**
+
+No **Group Policy ou no próprio Server Manager**:
+
+* Vá em `gpedit.msc`:
+
+  * `Configuração do Computador > Modelos Administrativos > Componentes do Windows > Serviços de Área de Trabalho Remota > Host da Sessão da Área de Trabalho Remota > Licenciamento`.
+  * Configure as seguintes opções:
+
+    * **Usar os servidores de licenças da Área de Trabalho Remota especificados** → Habilitado e informe o nome do servidor.
+    * **Modo de licenciamento da Área de Trabalho Remota** → Configure para “Por Usuário” ou “Por Dispositivo”, conforme a licença adquirida.
+
+---
+
+### 6. **Reinicie o servidor RDS**
+
+Após todas as configurações, reinicie o servidor de destino e tente conectar novamente.
+
+
