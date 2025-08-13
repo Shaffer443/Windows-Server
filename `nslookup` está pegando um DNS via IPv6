@@ -1,0 +1,47 @@
+Isso explica boa parte do problema.
+O `nslookup` está pegando um DNS via IPv6 (provavelmente da interface WAN), e não o seu DNS interno do Windows Server, o que atrapalha a entrada no domínio.
+
+📌 **O que fazer para corrigir**:
+Você precisa garantir que **o DNS interno (AD/DNS)** seja o **único** DNS para a rede LAN.
+Ou seja, na placa **LAN** (`192.168.0.2`), o DNS deve apontar para **ele mesmo** (`192.168.0.2`) e não para o provedor ou DNS externo.
+
+### Passo a passo:
+
+1. **Desabilitar IPv6 nas interfaces** (pelo menos na LAN)
+
+   * Vá em **Painel de Controle → Central de Rede e Compartilhamento → Alterar as configurações do adaptador**
+   * Botão direito na **LAN → Propriedades**
+   * Desmarque **Protocolo IP Versão 6 (TCP/IPv6)**.
+
+2. **Configurar DNS na LAN**
+
+   * IP: `192.168.0.2`
+   * Máscara: `255.255.255.0`
+   * Gateway: deixe em branco ou `192.168.0.1` (se for roteador interno)
+   * DNS preferencial: **192.168.0.2**
+   * DNS alternativo: deixe **em branco**.
+
+3. **Configurar DNS na WAN**
+
+   * A interface WAN pode continuar pegando DNS via DHCP do provedor **ou** ter o DNS manual (ex.: 8.8.8.8), mas **desmarque** o registro dessa interface no DNS interno:
+
+     * Vá em **Propriedades da conexão → IPv4 → Avançado → DNS**
+     * Desmarque **Registrar esta conexão nos registros de DNS**.
+
+4. **No DNS do servidor**
+
+   * Abra o console do DNS
+   * Em **Propriedades do servidor → Interfaces**, selecione **apenas a LAN** (`192.168.0.2`)
+   * Aplique e reinicie o serviço DNS (`services.msc → DNS Server → Reiniciar`).
+
+5. **Testar**
+
+   * No prompt, digite:
+
+     ```cmd
+     nslookup cpfr.local 192.168.0.2
+     ```
+
+     O **servidor** deve aparecer como `SRVCPFR.cpfr.local` e o **address** como `192.168.0.2`.
+
+Se quiser, eu posso te desenhar o **fluxo de rede com as configurações de DNS corretas** pra você ver como o tráfego vai passar até o domínio. Quer que eu faça esse esquema?
